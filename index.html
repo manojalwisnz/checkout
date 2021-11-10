@@ -11,14 +11,14 @@
 
     <div style="padding-bottom: 25px;">
         <h3>Test Case 1: Buy 3 Apple TVs, pay the price of 2 only</h3>
-        <p>SKUs Scanned: <code>Apple TV, Apple TV, Apple TV, VGA adapter</code></p>
+        <p>SKUs Scanned: <code>Apple TV($109.50), Apple TV($109.50), Apple TV($109.50), VGA adapter($30.00)</code></p>
         <p>Total expected: $249.00</p>
         Result: <b style="display: inline;" id="test1"> </b>
     </div>
 
     <div style="padding-bottom: 25px;">
         <h3>Test Case 2: $50 price drop for more than 4 Super iPads </h3>
-        <p>SKUs Scanned: <code>Apple TV, Super iPad, Super iPad, Apple TV, Super iPad, Super iPad, Super iPad</code>
+        <p>SKUs Scanned: <code>Apple TV($109.50), Super iPad($549.99), Super iPad($549.99), Apple TV($109.50), Super iPad($549.99), Super iPad($549.99), Super iPad($549.99)</code>
         </p>
         <p>Total expected: $2718.95</p>
         Result: <b style="display: inline;" id="test2"> </b>
@@ -26,7 +26,7 @@
 
     <div style="padding-bottom: 25px;">
         <h3>Test Case 3: VGA adapter free of charge with every MacBook Pro </h3>
-        <p>SKUs Scanned: <code>MacBook Pro, VGA adapter, Super iPad</code> </p>
+        <p>SKUs Scanned: <code>MacBook Pro($1399.99), VGA adapter($30.00), Super iPad($549.99)</code> </p>
         <p>Total expected: $1949.98</p>
         Result: <b style="display: inline;" id="test3"> </b>
     </div>
@@ -36,17 +36,6 @@
         /**
          * Product List
          */
-        var products = {
-            ipd: { id: "ipd", name: "Super iPad", price: 549.99 },
-            mbp: { id: "mbp", name: "MacBook Pro", price: 1399.99 },
-            atv: { id: "atv", name: "Apple TV", price: 109.50 },
-            vga: { id: "vga", name: "VGA adapter", price: 30.00 }
-        };
-
-
-        /**
-     * Product Listing
-     */
         var products = {
             ipd: { id: "ipd", name: "Super iPad", price: 549.99 },
             mbp: { id: "mbp", name: "MacBook Pro", price: 1399.99 },
@@ -93,19 +82,19 @@
                             // Succeeding iPad to have a $0 discount
                         } else if (ipadCtr > 4) {
                             console.log('Over 4 match!');
-                            sum += (items[i].price - 50);
+                            sum += (items[i].price-50);
                             continue;
                         }
                     }
 
 
-                    // Price Rule #3: 3 Apple TV for a price of 2
-                    if (items[i].id == 'atv') {
-                        appleTvCtr++;
+                    // Price Rule #3: free VGA adapter free of charge with every MacBook Pro sold
+                    if (items[i].id == 'mbp') {
+                        macBookCtr++;
                     }
 
                     if (items[i].id == 'vga' && macBookCtr > 0) {
-                        appleTvCtr = 0; // clear counter
+                        macBookCtr = 0; // clear counter
                         continue;
                     }
 
@@ -116,6 +105,78 @@
                 return sum;
             }
         };
+
+        /**
+         * Checkout
+         * @param priceRules
+         * @constructor
+         */
+
+        function Checkout(priceRules) {
+            this.items = [];
+            this.pricingRules = priceRules;
+
+            this.scan = function (item) {
+                this.items.push(item);
+            };
+
+            // Total price of the items without Price Rules
+            this.sumTotal = function () {
+                var sum = 0;
+                this.items.forEach(function (value, index) {
+                    sum += value.price;
+                });
+                return sum;
+            };
+
+            // Total price of the items with Price Rules
+            this.total = function () {
+                return this.pricingRules.applyPricingRule(this.items);
+            }
+        };
+
+
+        /**
+         * Tests cases
+         */
+
+
+        var myPricingRule = new PricingRules();
+
+        var myCheckout1 = new Checkout(myPricingRule);
+        var myCheckout2 = new Checkout(myPricingRule);
+        var myCheckout3 = new Checkout(myPricingRule);
+
+        // Test Case 1 : Apple TV, Apple TV, Apple TV, VGA adapter
+        myCheckout1.scan(products.atv);
+        myCheckout1.scan(products.atv);
+        myCheckout1.scan(products.atv);
+        myCheckout1.scan(products.vga);
+
+        // Test Case 2 : Apple TV, Super iPad, Super iPad, Apple TV, Super iPad, Super iPad, Super iPad
+        myCheckout2.scan(products.atv);
+        myCheckout2.scan(products.ipd);
+        myCheckout2.scan(products.ipd);
+        myCheckout2.scan(products.atv);
+        myCheckout2.scan(products.ipd);
+        myCheckout2.scan(products.ipd);
+        myCheckout2.scan(products.ipd);
+
+        // Test Case 3 : MacBook Pro, VGA adapter, Super iPad
+        myCheckout3.scan(products.mbp);
+        myCheckout3.scan(products.vga);
+        myCheckout3.scan(products.ipd);
+
+        // Fetch Total
+        test1 = myCheckout1.total();
+        test2 = myCheckout2.total();
+        test3 = myCheckout3.total();
+
+        // Show results
+        document.getElementById("test1").innerHTML = test1;
+        document.getElementById("test2").innerHTML = test2;
+        document.getElementById("test3").innerHTML = test3;
+
 
     </script>
 </body>
