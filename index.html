@@ -1,34 +1,123 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title> DiUS Shopping Cart</title>
 </head>
+
 <body>
 
-<h1>DiUS computer store with Price Rules</h1>
+    <h1>DiUS computer store with Price Rules</h1>
 
-<div style="padding-bottom: 25px;">
-    <h3>Test Case 1: Buy 3 Apple TVs, pay the price of 2 only</h3>
-    <p>SKUs Scanned: <code>Apple TV, Apple TV, Apple TV, VGA adapter</code></p>
-    <p>Total expected: $249.00</p>
-       Result: <b style="display: inline;" id="test1" > </b>
-</div>
+    <div style="padding-bottom: 25px;">
+        <h3>Test Case 1: Buy 3 Apple TVs, pay the price of 2 only</h3>
+        <p>SKUs Scanned: <code>Apple TV, Apple TV, Apple TV, VGA adapter</code></p>
+        <p>Total expected: $249.00</p>
+        Result: <b style="display: inline;" id="test1"> </b>
+    </div>
 
-<div style="padding-bottom: 25px;">
-    <h3>Test Case 2: $50 price drop for more than 4 Super iPads </h3>
-    <p>SKUs Scanned: <code>Apple TV, Super iPad, Super iPad, Apple TV, Super iPad, Super iPad, Super iPad</code> </p>
-    <p>Total expected: $2718.95</p>
-       Result: <b style="display: inline;" id="test2" > </b>
-</div>
+    <div style="padding-bottom: 25px;">
+        <h3>Test Case 2: $50 price drop for more than 4 Super iPads </h3>
+        <p>SKUs Scanned: <code>Apple TV, Super iPad, Super iPad, Apple TV, Super iPad, Super iPad, Super iPad</code>
+        </p>
+        <p>Total expected: $2718.95</p>
+        Result: <b style="display: inline;" id="test2"> </b>
+    </div>
 
-<div style="padding-bottom: 25px;">
-    <h3>Test Case 3: VGA adapter free of charge with every MacBook Pro </h3>
-    <p>SKUs Scanned: <code>MacBook Pro, VGA adapter, Super iPad</code> </p>
-    <p>Total expected: $1949.98</p>
-       Result: <b style="display: inline;" id="test3" > </b>
-</div>
+    <div style="padding-bottom: 25px;">
+        <h3>Test Case 3: VGA adapter free of charge with every MacBook Pro </h3>
+        <p>SKUs Scanned: <code>MacBook Pro, VGA adapter, Super iPad</code> </p>
+        <p>Total expected: $1949.98</p>
+        Result: <b style="display: inline;" id="test3"> </b>
+    </div>
+
+    <script>
+
+        /**
+         * Product List
+         */
+        var products = {
+            ipd: { id: "ipd", name: "Super iPad", price: 549.99 },
+            mbp: { id: "mbp", name: "MacBook Pro", price: 1399.99 },
+            atv: { id: "atv", name: "Apple TV", price: 109.50 },
+            vga: { id: "vga", name: "VGA adapter", price: 30.00 }
+        };
 
 
+        /**
+     * Product Listing
+     */
+        var products = {
+            ipd: { id: "ipd", name: "Super iPad", price: 549.99 },
+            mbp: { id: "mbp", name: "MacBook Pro", price: 1399.99 },
+            atv: { id: "atv", name: "Apple TV", price: 109.50 },
+            vga: { id: "vga", name: "VGA adapter", price: 30.00 }
+        };
 
+        /**
+         * Simple Pricing Rules
+         * @constructor
+         */
+        function PricingRules() {
+            this.applyPricingRule = function (items) {
+                var sum = 0;
+                var productIds = [];
+                var ipadCtr = 0;
+                var macBookCtr = 0;
+                var appleTvCtr = 0;
+                var ipadOver4 = false;
+
+                for (var i = 0; i < items.length; i++) {
+                    productIds.push(items[i].id);
+
+                    // Price Rule #1: 3 Apple TV for a price of 2
+                    if (items[i].id == 'atv') {
+                        appleTvCtr++;
+                        if (appleTvCtr == 3) {
+                            appleTvCtr = 0; // clear counter
+                            continue; //  Skip the 3rd Apple TV 
+                        }
+                    }
+
+                    // Price Rule #2: $50 price drop for more than 4 Super iPad
+                    if (items[i].id == 'ipd') {
+                        ipadCtr++;
+
+
+                        console.log('iPad match! ' + ipadCtr + ' ' + !ipadOver4);
+
+                        if (ipadCtr == 4) {
+                            console.log(' ipad > 4  match!');
+                            sum -= 200; // Apply $50 discount on each 4 iPad
+
+                            // Succeeding iPad to have a $0 discount
+                        } else if (ipadCtr > 4) {
+                            console.log('Over 4 match!');
+                            sum += (items[i].price - 50);
+                            continue;
+                        }
+                    }
+
+
+                    // Price Rule #3: 3 Apple TV for a price of 2
+                    if (items[i].id == 'atv') {
+                        appleTvCtr++;
+                    }
+
+                    if (items[i].id == 'vga' && macBookCtr > 0) {
+                        appleTvCtr = 0; // clear counter
+                        continue;
+                    }
+
+
+                    sum += items[i].price;
+                }
+
+                return sum;
+            }
+        };
+
+    </script>
 </body>
+
 </html>
